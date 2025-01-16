@@ -5,6 +5,11 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
 
+    // Skip middleware for auth-related routes
+    if (req.nextUrl.pathname.startsWith('/login')) {
+      return NextResponse.next();
+    }
+
     // Performance optimization: Early return for non-protected routes
     if (!req.nextUrl.pathname.startsWith('/api/')) {
       return NextResponse.next();
@@ -17,7 +22,13 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token, req }) => {
+        // Skip auth check for login page
+        if (req.nextUrl.pathname.startsWith('/login')) {
+          return true;
+        }
+        return !!token;
+      },
     },
   }
 );

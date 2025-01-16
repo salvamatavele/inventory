@@ -13,6 +13,14 @@ interface ProductsClientProps {
   data: any[];
 }
 
+export const statusOptions = [
+  {label: labels.common.all, value: ""},
+  { label: labels.products.statuses.GOOD, value: "GOOD" },
+  { label: labels.products.statuses.REASONABLE, value: "REASONABLE" },
+  { label: labels.products.statuses.POOR, value: "POOR" },
+  { label: labels.products.statuses.DAMAGED, value: "DAMAGED" },
+];
+
 const ProductsClient = memo(function ProductsClient({ data }: ProductsClientProps) {
   const router = useRouter();
 
@@ -49,6 +57,8 @@ const ProductsClient = memo(function ProductsClient({ data }: ProductsClientProp
         columns={columns} 
         data={data} 
         searchKey="name" 
+        statusOptions={statusOptions}
+        statusKey="status"
         searchPlaceholder={labels.common.search}
         noResults={labels.common.noResults}
         onDelete={onDelete}

@@ -1,6 +1,7 @@
 export const labels = {
   common: {
     add: "Adicionar",
+    all: "Todos",
     edit: "Editar",
     delete: "Excluir",
     save: "Salvar",

@@ -11,7 +11,7 @@ import { labels } from "@/config/labels";
 const formSchema = z.object({
   name: z.string().min(1, labels.users.validation.nameRequired),
   email: z.string().email(labels.users.validation.emailInvalid),
-  password: z.string().min(6, labels.users.validation.passwordLength).optional(),
+  password: z.string().min(6, labels.users.validation.passwordMinLength).optional(),
   role: z.enum(["USER", "ADMIN"], {
     required_error: labels.users.validation.roleRequired,
   }),
@@ -22,8 +22,8 @@ type FormValues = z.infer<typeof formSchema>;
 interface UserFormProps {
   initialData?: {
     id: string;
-    name: string;
-    email: string;
+    name: string | null;
+    email: string | null;
     role: string;
   } | null;
 }
@@ -75,11 +75,11 @@ export function UserForm({ initialData }: UserFormProps) {
       router.push("/users");
       toast.success(
         initialData
-          ? labels.users.messages.updateSuccess
-          : labels.users.messages.createSuccess
+          ? labels.users.updated
+          : labels.users.created
       );
     } catch (error) {
-      toast.error(labels.users.messages.error);
+      toast.error(labels.common.error);
     } finally {
       setIsLoading(false);
     }
@@ -91,13 +91,13 @@ export function UserForm({ initialData }: UserFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="name"
-            className="text-sm font-medium leading-6 text-gray-900"
+            className="text-sm font-medium leading-6 "
           >
             {labels.users.name}
           </label>
           <input
             {...form.register("name")}
-            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            className="block w-full bg-transparent rounded-md border-1 py-1.5 px-2 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           />
           {form.formState.errors.name && (
             <p className="text-sm text-red-600">
@@ -109,14 +109,14 @@ export function UserForm({ initialData }: UserFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="email"
-            className="text-sm font-medium leading-6 text-gray-900"
+            className="text-sm font-medium leading-6 "
           >
             {labels.users.email}
           </label>
           <input
             {...form.register("email")}
             type="email"
-            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            className="block w-full bg-transparent rounded-md border-0 py-1.5 px-2 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           />
           {form.formState.errors.email && (
             <p className="text-sm text-red-600">
@@ -129,14 +129,14 @@ export function UserForm({ initialData }: UserFormProps) {
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="text-sm font-medium leading-6 text-gray-900"
+              className="text-sm font-medium leading-6 "
             >
               {labels.users.password}
             </label>
             <input
               {...form.register("password")}
               type="password"
-              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              className="block w-full bg-transparent rounded-md border-0 py-1.5 px-2 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             />
             {form.formState.errors.password && (
               <p className="text-sm text-red-600">
@@ -149,13 +149,13 @@ export function UserForm({ initialData }: UserFormProps) {
         <div className="space-y-2">
           <label
             htmlFor="role"
-            className="text-sm font-medium leading-6 text-gray-900"
+            className="text-sm font-medium leading-6 "
           >
             {labels.users.role}
           </label>
           <select
             {...form.register("role")}
-            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            className="block w-full bg-transparent rounded-md border-0 py-1.5 px-2 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
             <option value="USER">{labels.users.roles.user}</option>
             <option value="ADMIN">{labels.users.roles.admin}</option>
@@ -180,7 +180,7 @@ export function UserForm({ initialData }: UserFormProps) {
           type="button"
           disabled={isLoading}
           onClick={() => router.push("/users")}
-          className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {labels.common.cancel}
         </button>

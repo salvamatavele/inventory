@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, TableMeta } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -8,6 +8,12 @@ import { labels } from "@/config/labels";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
+import { useState } from "react";
+
+interface TableCustomMeta extends TableMeta<any> {
+  onDelete: (id: string) => void;
+}
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -22,8 +28,8 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "role",
     header: labels.users.role,
     cell: ({ row }) => {
-      const role = row.original.role;
-      return labels.users.roles[role.toLowerCase()];
+      const role = row.original.role as 'ADMIN' | 'MANAGER' | 'USER';
+      return labels.users.roles[role.toLowerCase() as keyof typeof labels.users.roles];
     },
   },
   {
@@ -36,10 +42,14 @@ export const columns: ColumnDef<any>[] = [
   {
     id: "actions",
     header: labels.common.actions,
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const user = row.original;
+        const [showDelete, setShowDelete] = useState(false);
+            const onDelete = (table.options.meta as TableCustomMeta)?.onDelete;
+      
 
       return (
+        <>
         <div className="flex items-center gap-2">
           <Link
             href={`/users/${user.id}`}
@@ -52,18 +62,24 @@ export const columns: ColumnDef<any>[] = [
             <PencilIcon className="h-4 w-4" />
             {labels.common.edit}
           </Link>
-          <form action={`/api/users/${user.id}/delete`} method="POST">
-            <Button
-              type="submit"
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 text-red-600 hover:text-red-700"
-            >
-              <TrashIcon className="h-4 w-4" />
-              {labels.common.delete}
-            </Button>
-          </form>
-        </div>
+          <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowDelete(true)}
+                        className="text-red-600"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                        {labels.common.delete}
+                      </Button>
+                    </div>
+                    <ConfirmDelete
+                      isOpen={showDelete}
+                      onClose={() => setShowDelete(false)}
+                      onConfirm={async () => {
+                        return Promise.resolve(onDelete?.(row.original.id));
+                      }}
+                    />
+        </>
       );
     },
   },

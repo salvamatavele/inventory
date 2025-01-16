@@ -34,6 +34,7 @@ const CategoriesClient = memo(function CategoriesClient({ data }: CategoriesClie
     }
   };
 
+
   return (
     <>
       <div className="flex items-center justify-between">

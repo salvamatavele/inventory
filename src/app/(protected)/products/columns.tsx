@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, TableMeta } from "@tanstack/react-table";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -9,6 +9,10 @@ import { labels } from "@/config/labels";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
+
+interface TableCustomMeta extends TableMeta<any> {
+  onDelete: (id: string) => void;
+}
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -53,14 +57,11 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "supplier.name",
     header: labels.products.supplier,
-  },
-  {
-    id: "actions",
-    header: labels.common.actions,
     cell: ({ row, table }) => {
       const product = row.original;
       const [showDelete, setShowDelete] = useState(false);
-      const onDelete = table.options.meta?.onDelete;
+      const onDelete = (table.options.meta as TableCustomMeta)?.onDelete;
+    
 
       return (
         <>
@@ -89,7 +90,9 @@ export const columns: ColumnDef<any>[] = [
           <ConfirmDelete
             isOpen={showDelete}
             onClose={() => setShowDelete(false)}
-            onConfirm={() => onDelete?.(row.original.id)}
+            onConfirm={async () => {
+              return Promise.resolve(onDelete?.(row.original.id));
+            }}
           />
         </>
       );

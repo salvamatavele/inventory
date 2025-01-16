@@ -24,6 +24,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import {
+  Select
+} from "@/components/ui/select";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,6 +35,8 @@ interface DataTableProps<TData, TValue> {
   searchPlaceholder?: string;
   noResults?: string;
   onDelete?: (id: string) => Promise<void>;
+  statusKey?: string;
+  statusOptions?: { label: string; value: string }[];
 }
 
 interface CustomTableMeta extends TableMeta<any> {
@@ -42,9 +47,11 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
-  searchPlaceholder = "Search",
-  noResults = "No results.",
+  searchPlaceholder = "Pesquisar",
+  noResults = "Sem resultados.",
   onDelete,
+  statusKey,
+  statusOptions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -69,8 +76,8 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      {searchKey && (
-        <div className="flex items-center py-4">
+      <div className="flex items-center py-4 gap-2">
+        {searchKey && (
           <Input
             placeholder={searchPlaceholder}
             value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
@@ -79,8 +86,18 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-        </div>
-      )}
+        )}
+        {statusKey && statusOptions && (
+          <Select
+            options={statusOptions}
+            placeholder="Selecione"
+            value={(table.getColumn(statusKey)?.getFilterValue() as string) ?? ""}
+            onChange={(value: string) =>
+              table.getColumn(statusKey)?.setFilterValue(value)
+            }
+          />
+        )}
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -92,9 +109,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
